@@ -79,7 +79,7 @@ def main():
         print()
 
     image0 = zarr.open(series.aszarr(level=0))
-    metadata = ome_types.from_xml(tiff.ome_metadata, parser="xmlschema")
+    metadata = ome_types.from_xml(tiff.ome_metadata)
 
     base_shape = image0.shape[1:]
     tile_size = 1024
