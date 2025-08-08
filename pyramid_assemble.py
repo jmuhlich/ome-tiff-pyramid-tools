@@ -264,8 +264,7 @@ def main():
 
         ch, cw = cshapes[level]
         coords = itertools.product(range(num_channels), range(ch), range(cw))
-        yield from map(tile, coords)
-        # yield from pool.map(tile, coords)
+        yield from pool.map(tile, coords)
 
     metadata = {
         "UUID": uuid.uuid4().urn,
