@@ -202,7 +202,7 @@ def main():
             )
         in_imgs.extend(imgs)
         in_tiled.extend([can_tile] * len(imgs))
-        num_channels += channels
+        num_channels += channels if c is None else 1
     print()
 
     num_levels = max(np.ceil(np.log2(max(base_shape) / args.tile_size)) + 1, 1)
