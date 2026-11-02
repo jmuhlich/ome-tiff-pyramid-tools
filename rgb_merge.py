@@ -59,10 +59,15 @@ def main():
             f"Input must have exactly 3 channels; found {series.shape[0]}"
             " instead"
         )
-    if series.dtype != "uint8":
+    if series.dtype == "uint8":
+        convert = None
+    elif series.dtype == "uint16":
+        def convert(a):
+            return (a >> 8).astype(np.uint8)
+    else:
         error(
             args.input,
-            f"Input must have pixel type uint8; found {series.dtype}"
+            f"Input must have pixel type uint8 or uint16; found {series.dtype}"
         )
 
     if args.output.exists():
@@ -112,8 +117,9 @@ def main():
             for i in range(cw):
                 tile = zimg[:, ts * j : ts * (j + 1), ts * i : ts * (i + 1)]
                 tile = tile.transpose(1, 2, 0)
-                # Must copy() to provide contiguous array for jpeg encoder.
-                yield tile.copy()
+                if convert:
+                    tile = convert(tile)
+                yield tile
 
     def tiles(level):
         if level == 0:
@@ -153,6 +159,8 @@ def main():
     mpixels.channels[0].name = None
     mpixels.channels[0].samples_per_pixel = 3
     mpixels.tiff_data_blocks = [ome_types.model.TiffData(plane_count=1)]
+    # We only accept uint8 or types that we convert to uint8, so override this.
+    mpixels.type = 'uint8'
     # Drop the optional PyramidResolution annotation rather than recompute it.
     metadata.structured_annotations = [
         a for a in metadata.structured_annotations
